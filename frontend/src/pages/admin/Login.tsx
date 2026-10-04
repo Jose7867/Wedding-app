@@ -28,7 +28,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-wine px-6">
       <div className="w-full max-w-sm rounded-2xl bg-ivory p-10 shadow-xl">
-        <p className="text-center font-script text-4xl text-wine">E &amp; J</p>
+        <p className="text-center font-script text-4xl text-wine">J &amp; E</p>
         <h1 className="mt-2 text-center font-display text-2xl italic text-charcoal">
           Panel administrativo
         </h1>

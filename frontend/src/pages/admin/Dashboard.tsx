@@ -27,7 +27,7 @@ export default function Dashboard() {
     <AdminLayout>
       <h1 className="font-display text-3xl italic text-wine">Resumen</h1>
       <p className="mt-1 text-sm text-charcoal/60">
-        Vista general del estado de las invitaciones para la boda de Emma &amp; José.
+        Vista general del estado de las invitaciones para la boda de José &amp; Emma.
       </p>
 
       {loading ? (
