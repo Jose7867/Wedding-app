@@ -59,7 +59,7 @@ historia: [
     { src: "../images/image3.jpg", alt: "Fotografía 3" },
     { src: "../images/image4.jpg", alt: "Fotografía 4" },
     { src: "../images/image5.jpg", alt: "Fotografía 5" },
-    { src: "../images/image6.jpg", alt: "Fotografía 6" },
+    
   ], 
 
   fotoPrincipal:
