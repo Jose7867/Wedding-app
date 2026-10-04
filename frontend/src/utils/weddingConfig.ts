@@ -6,7 +6,7 @@
  */
 export const weddingConfig = {
   novios: {
-    nombres: "Emma & José",
+    nombres: "José & Emma",
     fraseHero: "Dos vidas, un solo camino, una historia que comienza para siempre.",
   },
 

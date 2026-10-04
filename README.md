@@ -1,4 +1,4 @@
-# Emma & José — Aplicación web de boda
+# José & Emma — Aplicación web de boda
 
 Invitación digital + historia de los novios + fotografías + pasaje bíblico +
 información del evento + Google Maps + códigos únicos de invitación +
@@ -70,7 +70,7 @@ No es necesario tocar ningún otro archivo para actualizar estos datos.
 
 1. El invitado abre la página principal y navega por la historia, el pasaje
    bíblico, la información del evento y la galería.
-2. En "Verifica tu invitación" ingresa su código único (ej. `BODA-EMMA-001`).
+2. En "Verifica tu invitación" ingresa su código único (ej. `BODA-JOSE-001`).
 3. Si el código existe, ve su nombre, sus acompañantes y el total de personas
    invitadas. Si no existe, ve un mensaje de error sin revelar información
    sensible.

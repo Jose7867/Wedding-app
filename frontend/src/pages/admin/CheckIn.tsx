@@ -119,7 +119,7 @@ export default function CheckIn() {
             autoFocus
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
-            placeholder="BODA-EMMA-001"
+            placeholder="BODA-JOSE-001"
             className="w-full rounded-lg border border-gold/30 py-3 pl-10 pr-3 font-mono text-sm uppercase focus:outline-none focus:ring-2 focus:ring-gold"
           />
         </div>

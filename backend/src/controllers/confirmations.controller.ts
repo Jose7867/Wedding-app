@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { prisma } from "../utils/prisma";
-import { generateVerificationCode } from "../utils/codeGenerator";
+import { generateUniqueCode, generateVerificationCode } from "../utils/codeGenerator";
 import { AuthenticatedRequest } from "../middleware/auth";
 
 // ──────────────────────────────────────────────
@@ -123,13 +123,38 @@ export async function accept(
       });
     }
 
-    // Generar código de verificación único de 6 chars
+    // Generar código de verificación único de 6 chars y crear la invitación real
     const codigoVerificacion = await generateVerificationCode();
+    const codigoInvitacion = await generateUniqueCode();
 
-    const updated = await prisma.confirmationRequest.update({
-      where: { id },
-      data: { estado: "aceptada", codigoVerificacion },
-      include: { companions: true },
+    const [updated, createdInvitation] = await prisma.$transaction(async (tx) => {
+      const invitation = await tx.invitation.create({
+        data: {
+          codigo: codigoInvitacion,
+          codigoVerificacion,
+          nombrePrincipal: existing.nombre,
+          mensaje: "Nos alegra mucho poder compartir este momento contigo.",
+          estado: "confirmada",
+          guests: {
+            create: [
+              { nombre: existing.nombre, tipo: "principal" },
+              ...existing.companions.map((companion) => ({
+                nombre: companion.nombre,
+                tipo: "acompanante" as const,
+              })),
+            ],
+          },
+        },
+        include: { guests: true },
+      });
+
+      const request = await tx.confirmationRequest.update({
+        where: { id },
+        data: { estado: "aceptada", codigoVerificacion },
+        include: { companions: true },
+      });
+
+      return [request, invitation] as const;
     });
 
     res.json({
@@ -138,6 +163,12 @@ export async function accept(
       estado: updated.estado,
       codigoVerificacion: updated.codigoVerificacion,
       acompanantes: updated.companions.map((c) => c.nombre),
+      invitacionCreada: {
+        id: createdInvitation.id,
+        codigo: createdInvitation.codigo,
+        nombrePrincipal: createdInvitation.nombrePrincipal,
+        totalInvitados: createdInvitation.guests.length,
+      },
     });
   } catch (err) {
     next(err);

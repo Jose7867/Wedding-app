@@ -21,13 +21,13 @@ async function main() {
 
   // Invitación de ejemplo
   const existing = await prisma.invitation.findUnique({
-    where: { codigo: "BODA-EMMA-001" },
+    where: { codigo: "BODA-JOSE-001" },
   });
 
   if (!existing) {
     await prisma.invitation.create({
       data: {
-        codigo: "BODA-EMMA-001",
+        codigo: "BODA-JOSE-001",
         nombrePrincipal: "Carlos Pérez",
         mensaje: "Nos alegra mucho poder compartir este momento contigo.",
         guests: {
@@ -39,7 +39,7 @@ async function main() {
         },
       },
     });
-    console.log("Invitación de ejemplo BODA-EMMA-001 creada.");
+    console.log("Invitación de ejemplo BODA-JOSE-001 creada.");
   }
 }
 

@@ -304,7 +304,7 @@ function CreateInvitationModal({
             <input
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
-              placeholder="BODA-EMMA-002"
+              placeholder="BODA-JOSE-002"
               className="w-full rounded-lg border border-gold/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
             />
           </div>

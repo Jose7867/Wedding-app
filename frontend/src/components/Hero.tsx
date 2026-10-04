@@ -14,7 +14,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <img
           src={weddingConfig.fotoPrincipal}
-          alt="Emma y José — fotografía de ejemplo, reemplazar por la foto real"
+          alt="José y Emma — fotografía de ejemplo, reemplazar por la foto real"
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/50 via-charcoal/35 to-ivory" />
