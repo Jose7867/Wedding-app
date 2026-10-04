@@ -1,0 +1,19 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.signAdminToken = signAdminToken;
+exports.verifyAdminToken = verifyAdminToken;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "8h";
+if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET no está configurado en las variables de entorno.");
+}
+function signAdminToken(payload) {
+    return jsonwebtoken_1.default.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+}
+function verifyAdminToken(token) {
+    return jsonwebtoken_1.default.verify(token, JWT_SECRET);
+}

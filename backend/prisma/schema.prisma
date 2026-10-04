@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Administrator {
+  id           String   @id @default(uuid())
+  nombre       String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  attendanceRecords AttendanceRecord[]
+
+  @@map("administrators")
+}
+
+model Invitation {
+  id                 String            @id @default(uuid())
+  codigo             String            @unique
+  codigoVerificacion String?           @unique @map("codigo_verificacion")
+  nombrePrincipal    String            @map("nombre_principal")
+  mensaje            String?
+  estado             String  @default("pendiente")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  guests Guest[]
+
+  @@map("invitations")
+}
+
+model Guest {
+  id           String    @id @default(uuid())
+  invitationId String    @map("invitation_id")
+  nombre       String
+  tipo         String @default("acompanante")
+  presente     Boolean   @default(false)
+  horaIngreso  DateTime? @map("hora_ingreso")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  invitation        Invitation          @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  attendanceRecords  AttendanceRecord[]
+
+  @@map("guests")
+}
+
+model AttendanceRecord {
+  id              String   @id @default(uuid())
+  guestId         String   @map("guest_id")
+  administradorId String   @map("administrador_id")
+  fechaHora       DateTime @default(now()) @map("fecha_hora")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  guest         Guest         @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  administrador Administrator @relation(fields: [administradorId], references: [id])
+
+  @@map("attendance_records")
+}
+
+model ConfirmationRequest {
+  id                 String   @id @default(uuid())
+  nombre             String
+  estado             String   @default("pendiente")
+  codigoVerificacion String?  @unique @map("codigo_verificacion")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  companions ConfirmationCompanion[]
+
+  @@map("confirmation_requests")
+}
+
+model ConfirmationCompanion {
+  id        String @id @default(uuid())
+  requestId String @map("request_id")
+  nombre    String
+
+  request ConfirmationRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("confirmation_companions")
+}
+
