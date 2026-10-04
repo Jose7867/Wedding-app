@@ -54,11 +54,11 @@ historia: [
 
   // Reemplaza estas URLs por las fotografías reales de los novios.
   galeria: [
-    { src: "../images/image1.jpeg", alt: "Fotografía 1" },
-    { src: "../images/image2.jpg", alt: "Fotografía 2" },
-    { src: "../images/image3.jpg", alt: "Fotografía 3" },
-    { src: "../images/image4.jpg", alt: "Fotografía 4" },
-    { src: "../images/image5.jpg", alt: "Fotografía 5" },
+    { src: "/images/image1.jpeg", alt: "Fotografía 1" },
+    { src: "/images/image2.jpg", alt: "Fotografía 2" },
+    { src: "/images/image3.jpg", alt: "Fotografía 3" },
+    { src: "/images/image4.jpg", alt: "Fotografía 4" },
+    { src: "/images/image5.jpg", alt: "Fotografía 5" },
     
   ], 
 
