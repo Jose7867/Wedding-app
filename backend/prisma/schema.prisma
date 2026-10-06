@@ -54,7 +54,7 @@ model Guest {
 
 model AttendanceRecord {
   id              String   @id @default(uuid())
-  guestId         String   @map("guest_id")
+  guestId         String   @unique @map("guest_id")
   administradorId String   @map("administrador_id")
   fechaHora       DateTime @default(now()) @map("fecha_hora")
   createdAt       DateTime @default(now()) @map("created_at")

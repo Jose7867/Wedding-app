@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { CheckCircle2, Camera, ScanLine, Search, X } from "lucide-react";
+import { CheckCircle2, Camera, Download, ScanLine, Search, X } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import AdminLayout from "../../layouts/AdminLayout";
 import {
@@ -17,6 +17,7 @@ const QR_READER_ID = "wedding-checkin-qr-reader";
 export default function CheckIn() {
   const [codigo, setCodigo] = useState("");
   const [found, setFound] = useState<Invitation | null>(null);
+  const [downloadingList, setDownloadingList] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -304,6 +305,92 @@ export default function CheckIn() {
     }
   }
 
+
+async function downloadGuestList() {
+  try {
+    setDownloadingList(true);
+    setError(null);
+
+    const invitations = await fetchInvitations();
+
+    const details = await Promise.all(
+      invitations.map((invitation) =>
+        fetchInvitationById(invitation.id)
+      )
+    );
+
+    const rows = details.flatMap((invitation) =>
+      invitation.guests.map((guest) => ({
+        codigo: invitation.codigo,
+        invitadoPrincipal: invitation.nombrePrincipal,
+        nombre: guest.nombre,
+        tipo: guest.tipo,
+        estado: guest.presente ? "Presente" : "Pendiente",
+        horaIngreso: guest.horaIngreso
+          ? new Date(guest.horaIngreso).toLocaleString("es-PE")
+          : "",
+      }))
+    );
+
+    if (rows.length === 0) {
+      setError("No hay invitados para descargar.");
+      return;
+    }
+
+    const headers = [
+      "Código",
+      "Invitado principal",
+      "Nombre",
+      "Tipo",
+      "Estado",
+      "Hora de ingreso",
+    ];
+
+    const csvCell = (value: unknown) => {
+      const text = value == null ? "" : String(value);
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
+    const csv = [
+      headers.map(csvCell).join(","),
+      ...rows.map((row) =>
+        [
+          row.codigo,
+          row.invitadoPrincipal,
+          row.nombre,
+          row.tipo,
+          row.estado,
+          row.horaIngreso,
+        ]
+          .map(csvCell)
+          .join(",")
+      ),
+    ].join("\n");
+
+    // BOM para que Excel reconozca correctamente tildes y ñ.
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "lista-invitados-boda.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error(err);
+    setError("No se pudo generar la lista de invitados.");
+  } finally {
+    setDownloadingList(false);
+  }
+}
+
+
   function resetForNext() {
     setCodigo("");
     setFound(null);
@@ -345,6 +432,7 @@ export default function CheckIn() {
             >
               <X size={22} />
             </button>
+
           </div>
 
           <div className="relative bg-black p-4">
@@ -396,6 +484,16 @@ export default function CheckIn() {
         >
           <ScanLine size={20} />
           {scannerOpen ? "ESCÁNER ACTIVO" : "ESCANEAR QR"}
+        </button>
+
+        <button
+          type="button"
+          onClick={downloadGuestList}
+          disabled={downloadingList}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-gold/30 bg-white py-3 text-sm font-semibold text-wine transition hover:bg-gold/5 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Download size={18} />
+          {downloadingList ? "GENERANDO LISTA..." : "DESCARGAR LISTA DE INVITADOS"}
         </button>
 
         <div className="my-5 flex items-center gap-3">
