@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Plus, Trash2, X } from "lucide-react";
+import { Search, Plus, Trash2, X, Download } from "lucide-react";
 import AdminLayout from "../../layouts/AdminLayout";
 import {
   fetchInvitations,
@@ -24,6 +24,7 @@ export default function Guests() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Invitation | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [downloadingList, setDownloadingList] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -43,6 +44,90 @@ export default function Guests() {
     setSelected(invitation);
   }
 
+  async function downloadGuestList() {
+    try {
+      setDownloadingList(true);
+      
+  
+      const invitations = await fetchInvitations();
+  
+      const details = await Promise.all(
+        invitations.map((invitation) =>
+          fetchInvitationById(invitation.id)
+        )
+      );
+  
+      const rows = details.flatMap((invitation) =>
+        invitation.guests.map((guest) => ({
+          codigo: invitation.codigo,
+          invitadoPrincipal: invitation.nombrePrincipal,
+          nombre: guest.nombre,
+          tipo: guest.tipo,
+          estado: guest.presente ? "Presente" : "Pendiente",
+          horaIngreso: guest.horaIngreso
+            ? new Date(guest.horaIngreso).toLocaleString("es-PE")
+            : "",
+        }))
+      );
+  
+      if (rows.length === 0) {
+        alert("No hay invitados para descargar.");
+        return;
+      }
+  
+      const headers = [
+        "Código",
+        "Invitado principal",
+        "Nombre",
+        "Tipo",
+        "Estado",
+        "Hora de ingreso",
+      ];
+  
+      const csvCell = (value: unknown) => {
+        const text = value == null ? "" : String(value);
+        return `"${text.replace(/"/g, '""')}"`;
+      };
+  
+      const csv = [
+        headers.map(csvCell).join(","),
+        ...rows.map((row) =>
+          [
+            row.codigo,
+            row.invitadoPrincipal,
+            row.nombre,
+            row.tipo,
+            row.estado,
+            row.horaIngreso,
+          ]
+            .map(csvCell)
+            .join(",")
+        ),
+      ].join("\n");
+  
+      // BOM para que Excel reconozca correctamente tildes y ñ.
+      const blob = new Blob(["\uFEFF" + csv], {
+        type: "text/csv;charset=utf-8;",
+      });
+  
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+  
+      link.href = url;
+      link.download = "lista-invitados-boda.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+  
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo generar la lista de invitados.");
+    } finally {
+      setDownloadingList(false);
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("¿Eliminar esta invitación y a todos sus invitados?")) return;
     await deleteInvitation(id);
@@ -56,9 +141,20 @@ export default function Guests() {
           <h1 className="font-display text-3xl italic text-wine">Invitados</h1>
           <p className="mt-1 text-sm text-charcoal/60">Gestiona invitaciones, códigos y acompañantes.</p>
         </div>
-        <button onClick={() => setShowCreate(true)} className="btn-primary">
-          <Plus size={16} /> Nueva invitación
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={downloadGuestList}
+            disabled={downloadingList}
+            className="flex items-center justify-center gap-2 rounded-lg border border-gold/30 bg-white px-4 py-2 text-sm font-semibold text-wine transition hover:bg-gold/5 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download size={18} />
+            {downloadingList ? "GENERANDO LISTA..." : "DESCARGAR LISTA DE INVITADOS"}
+          </button>
+          <button onClick={() => setShowCreate(true)} className="btn-primary">
+            <Plus size={16} /> Nueva invitación
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
